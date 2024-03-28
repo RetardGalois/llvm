@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"os"
 	"time"
 
 	"github.com/llir/ll/ast"
@@ -21,7 +22,7 @@ var (
 
 // ParseFile parses the given LLVM IR assembly file into an LLVM IR module.
 func ParseFile(path string) (*ir.Module, error) {
-	buf, err := ioutil.ReadFile(path)
+	buf, err := os.ReadFile(path)
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}

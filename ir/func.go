@@ -206,6 +206,59 @@ func (f *Func) AssignIDs() error {
 	return nil
 }
 
+// Reassign all ids.
+func (f *Func) ReAssignIDs() error {
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	id := int64(0)
+	setName := func(n namedVar) error {
+		if n.IsUnnamed() {
+			n.SetID(id)
+			id++
+		}
+		return nil
+	}
+	for _, param := range f.Params {
+		// Assign local IDs to unnamed parameters of function definitions.
+		if err := setName(param); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	for _, block := range f.Blocks {
+		// Assign local IDs to unnamed basic blocks.
+		if err := setName(block); err != nil {
+			return errors.WithStack(err)
+		}
+		for _, inst := range block.Insts {
+			n, ok := inst.(namedVar)
+			if !ok {
+				continue
+			}
+			// Skip void instructions (call with void return).
+			if types.Equal(n.Type(), types.Void) {
+				continue
+			}
+			// Assign local IDs to unnamed local variables.
+			if err := setName(n); err != nil {
+				return errors.WithStack(err)
+			}
+		}
+		n, ok := block.Term.(namedVar)
+		if !ok {
+			continue
+		}
+		// Skip void terminators (invoke, callbr with void return).
+		if types.Equal(n.Type(), types.Void) {
+			continue
+		}
+		if err := setName(n); err != nil {
+			return errors.WithStack(err)
+		}
+	}
+	return nil
+
+}
+
 // ### [ Helper functions ] ####################################################
 
 // headerString returns the string representation of the function header.

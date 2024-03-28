@@ -62,8 +62,8 @@ func (block *Block) NewCall(callee value.Value, args ...value.Value) *InstCall {
 }
 
 // ~~~ [ va_arg ] ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 // NewVAArg appends a new va_arg instruction to the basic block based on the
+
 // given variable argument list and argument type.
 func (block *Block) NewVAArg(vaList value.Value, argType types.Type) *InstVAArg {
 	inst := NewVAArg(vaList, argType)
